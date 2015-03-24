@@ -153,16 +153,9 @@ public class MainI2cActivity extends Activity
                     i2c.write(fileHande, i2cCommBuffer, 2);
 
 	/* Setup mcp9800 register to read the temperature */
-                    i2cCommBuffer[0] = L3GD20_REGISTER_OUT_X_H;
+                    i2cCommBuffer[0] = L3GD20_REGISTER_OUT_X_L | (1 << 7);
                     i2c.write(fileHande, i2cCommBuffer, 1);
 
-                    try {
-                        Thread.sleep(1);
-                    }
-                    catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                    }
 
                     i2c.read(fileHande, i2cCommBuffer, 6);
                     x_data = ((i2cCommBuffer[1] << 8) | i2cCommBuffer[0]);
@@ -176,10 +169,10 @@ public class MainI2cActivity extends Activity
                     }
                     y_data /= 250;
                     z_data = ((i2cCommBuffer[5] << 8) | i2cCommBuffer[4]);
-                    if(x_data > 32768){
-                        x_data -= 65536;
+                    if(z_data > 32768){
+                        z_data -= 65536;
                     }
-                    x_data /= 250;
+                    z_data /= 250;
                     //x_data = i2cCommBuffer[0];
 
                     //Temperature = Temperature >> 4;
@@ -188,10 +181,9 @@ public class MainI2cActivity extends Activity
                     //TempC = 1.0 * Temperature * 0.0625;
 
     /* Display actual temperature */
-                    //textViewTemperature.setText("Temperature: " + String.format("%3.2f", TempC) + DEGREE_SYMBOL);
                     textViewX.setText("X: " + String.format("%d", x_data) + DEGREE_SYMBOL + "/s");
-                    textViewX.setText("Y: " + String.format("%d", y_data) + DEGREE_SYMBOL + "/s");
-                    textViewX.setText("Z: " + String.format("%d", z_data) + DEGREE_SYMBOL + "/s");
+                    textViewY.setText("Y: " + String.format("%d", y_data) + DEGREE_SYMBOL + "/s");
+                    textViewZ.setText("Z: " + String.format("%d", z_data) + DEGREE_SYMBOL + "/s");
                      	/* Close the i2c file */
                     i2c.close(fileHande);
                 }
