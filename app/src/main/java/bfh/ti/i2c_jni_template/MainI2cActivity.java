@@ -71,9 +71,13 @@ public class MainI2cActivity extends Activity
 
   int Device_id;
   int temp;
-  int x_data;
-  int y_data;
-  int z_data;
+  double x_data;
+  double y_data;
+  double z_data;
+
+  double x_angle;
+
+  double drift = 0.785;
 
   Timer timer;
   MyTimerTask myTimerTask;
@@ -98,7 +102,7 @@ public class MainI2cActivity extends Activity
 
     timer = new Timer();
     myTimerTask = new MyTimerTask();
-    timer.schedule(myTimerTask, 0, 200);
+    timer.schedule(myTimerTask, 0, 10);
 
    }
 
@@ -177,13 +181,18 @@ public class MainI2cActivity extends Activity
 
                     //Temperature = Temperature >> 4;
 
+                    x_data -= drift;
+                    x_angle += x_data / 100 * 2;
+
+
+
 	/* Convert current temperature to float */
                     //TempC = 1.0 * Temperature * 0.0625;
 
     /* Display actual temperature */
-                    textViewX.setText("X: " + String.format("%d", x_data) + DEGREE_SYMBOL + "/s");
-                    textViewY.setText("Y: " + String.format("%d", y_data) + DEGREE_SYMBOL + "/s");
-                    textViewZ.setText("Z: " + String.format("%d", z_data) + DEGREE_SYMBOL + "/s");
+                    textViewX.setText("X: " + String.format("%3.2f", x_angle) + DEGREE_SYMBOL + "/s");
+                    textViewY.setText("Y: " + String.format("%3.2f", y_data) + DEGREE_SYMBOL + "/s");
+                    textViewZ.setText("Z: " + String.format("%3.2f", z_data) + DEGREE_SYMBOL + "/s");
                      	/* Close the i2c file */
                     i2c.close(fileHande);
                 }
