@@ -76,11 +76,16 @@ public class MainI2cActivity extends Activity
   double z_data;
 
   double x_angle;
+  double y_angle;
+  double z_angle;
 
-  double drift = 0.785;
+  double x_drift = 0;
+  double y_drift = 0;
+  double z_drift = 0;
 
   Timer timer;
-  MyTimerTask myTimerTask;
+  SensorTask sensorTask;
+  GuiTask guiTask;
 
   /* Define widgets */
   TextView textViewX;
@@ -88,8 +93,58 @@ public class MainI2cActivity extends Activity
   TextView textViewZ;
 
   /* Temperature Degrees Celsius text symbol */
-  private static final String DEGREE_SYMBOL = "\u2103";
+  private static final String DEGREE_SYMBOL = "\u00B0";
 
+  private void readsensor(){
+                          	/* Instantiate the new i2c device */
+      i2c = new I2C();
+
+	/* Open the i2c device */
+      //fileHande = i2c.open(MCP9800_FILE_NAME);
+      fileHande = i2c.open(MCP9800_FILE_NAME);
+
+	/* Set the I2C slave address for all subsequent I2C device transfers */
+      //i2c.SetSlaveAddress(fileHande, MCP9800_I2C_ADDR);
+      i2c.SetSlaveAddress(fileHande, L3GD20_I2C_ADDR);
+
+	/* Setup i2c buffer for the configuration register */
+      i2cCommBuffer[0] = L3GD20_REGISTER_CTRL_REG4;
+      i2cCommBuffer[1] = 0;
+      i2c.write(fileHande, i2cCommBuffer, 2);
+
+      i2cCommBuffer[0] = L3GD20_REGISTER_CTRL_REG1;
+      i2cCommBuffer[1] = 0x6F;
+      i2c.write(fileHande, i2cCommBuffer, 2);
+
+	/* Setup mcp9800 register to read the temperature */
+      i2cCommBuffer[0] = L3GD20_REGISTER_OUT_X_L | (1 << 7);
+      i2c.write(fileHande, i2cCommBuffer, 1);
+
+
+      i2c.read(fileHande, i2cCommBuffer, 6);
+      x_data = ((i2cCommBuffer[1] << 8) | i2cCommBuffer[0]);
+      if(x_data > 32768){
+          x_data -= 65536;
+      }
+      x_data /= 500;
+      y_data = ((i2cCommBuffer[3] << 8) | i2cCommBuffer[2]);
+      if(y_data > 32768){
+          y_data -= 65536;
+      }
+      y_data /= 500;
+      z_data = ((i2cCommBuffer[5] << 8) | i2cCommBuffer[4]);
+      if(z_data > 32768){
+          z_data -= 65536;
+      }
+      z_data /= 500;
+                     	/* Close the i2c file */
+      i2c.close(fileHande);
+      //x_data = i2cCommBuffer[0];
+
+      //Temperature = Temperature >> 4;
+                    	/* Convert current temperature to float */
+      //TempC = 1.0 * Temperature * 0.0625;
+  }
   @Override
   protected void onCreate(Bundle savedInstanceState)
    {
@@ -101,8 +156,22 @@ public class MainI2cActivity extends Activity
     textViewZ = (TextView) findViewById(R.id.textViewZ);
 
     timer = new Timer();
-    myTimerTask = new MyTimerTask();
-    timer.schedule(myTimerTask, 0, 10);
+    sensorTask = new SensorTask();
+    timer.schedule(sensorTask, 0, 5);
+    guiTask = new GuiTask();
+    timer.schedule(guiTask, 0, 20);
+
+    for(int i=0;i < 100;i++) {
+        readsensor();
+        x_drift += x_data / 100;
+        y_drift += y_data / 100;
+        z_drift += z_data / 100;
+        try {
+            Thread.sleep(2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
    }
 
@@ -125,7 +194,7 @@ public class MainI2cActivity extends Activity
 	 super.onStop();
 	}
 
-    class MyTimerTask extends TimerTask
+    class SensorTask extends TimerTask
     {
         @Override
         public void run()
@@ -136,65 +205,38 @@ public class MainI2cActivity extends Activity
                 @Override
                 public void run()
                 {
-                    	/* Instantiate the new i2c device */
-                    i2c = new I2C();
 
-	/* Open the i2c device */
-                    //fileHande = i2c.open(MCP9800_FILE_NAME);
-                    fileHande = i2c.open(MCP9800_FILE_NAME);
-
-	/* Set the I2C slave address for all subsequent I2C device transfers */
-                    //i2c.SetSlaveAddress(fileHande, MCP9800_I2C_ADDR);
-                    i2c.SetSlaveAddress(fileHande, L3GD20_I2C_ADDR);
-
-	/* Setup i2c buffer for the configuration register */
-                    i2cCommBuffer[0] = L3GD20_REGISTER_CTRL_REG4;
-                    i2cCommBuffer[1] = 0;
-                    i2c.write(fileHande, i2cCommBuffer, 2);
-
-                    i2cCommBuffer[0] = L3GD20_REGISTER_CTRL_REG1;
-                    i2cCommBuffer[1] = 0x6F;
-                    i2c.write(fileHande, i2cCommBuffer, 2);
-
-	/* Setup mcp9800 register to read the temperature */
-                    i2cCommBuffer[0] = L3GD20_REGISTER_OUT_X_L | (1 << 7);
-                    i2c.write(fileHande, i2cCommBuffer, 1);
-
-
-                    i2c.read(fileHande, i2cCommBuffer, 6);
-                    x_data = ((i2cCommBuffer[1] << 8) | i2cCommBuffer[0]);
-                    if(x_data > 32768){
-                        x_data -= 65536;
-                    }
-                    x_data /= 250;
-                    y_data = ((i2cCommBuffer[3] << 8) | i2cCommBuffer[2]);
-                    if(y_data > 32768){
-                        y_data -= 65536;
-                    }
-                    y_data /= 250;
-                    z_data = ((i2cCommBuffer[5] << 8) | i2cCommBuffer[4]);
-                    if(z_data > 32768){
-                        z_data -= 65536;
-                    }
-                    z_data /= 250;
-                    //x_data = i2cCommBuffer[0];
-
-                    //Temperature = Temperature >> 4;
-
-                    x_data -= drift;
+                    readsensor();
+                    x_data -= x_drift;
                     x_angle += x_data / 100 * 2;
 
+                    y_data -= y_drift;
+                    y_angle += y_data / 100 * 2;
 
+                    z_data -= z_drift;
+                    z_angle += z_data / 100 * 2;
+                }
+            });
+        }
+    }
 
-	/* Convert current temperature to float */
-                    //TempC = 1.0 * Temperature * 0.0625;
+    class GuiTask extends TimerTask
+    {
+        @Override
+        public void run()
+        {
+
+            runOnUiThread(new Runnable()
+            {
+                @Override
+                public void run()
+                {
 
     /* Display actual temperature */
-                    textViewX.setText("X: " + String.format("%3.2f", x_angle) + DEGREE_SYMBOL + "/s");
-                    textViewY.setText("Y: " + String.format("%3.2f", y_data) + DEGREE_SYMBOL + "/s");
-                    textViewZ.setText("Z: " + String.format("%3.2f", z_data) + DEGREE_SYMBOL + "/s");
-                     	/* Close the i2c file */
-                    i2c.close(fileHande);
+                    textViewX.setText("X: " + String.format("%3.2f", x_angle) + DEGREE_SYMBOL);
+                    textViewY.setText("Y: " + String.format("%3.2f", y_angle) + DEGREE_SYMBOL);
+                    textViewZ.setText("Z: " + String.format("%3.2f", z_angle) + DEGREE_SYMBOL);
+
                 }
             });
         }
