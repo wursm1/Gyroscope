@@ -96,6 +96,11 @@ public class MainI2cActivity extends Activity
   TextView textViewY;
   TextView textViewZ;
 
+  ImageView image;
+  Bitmap rotated;
+  Bitmap bMap;
+  Matrix matrix = new Matrix();
+
   /* Temperature Degrees Celsius text symbol */
   private static final String DEGREE_SYMBOL = "\u00B0";
 
@@ -156,15 +161,8 @@ public class MainI2cActivity extends Activity
        super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_main_i2c
        );
-           ImageView image = (ImageView) findViewById(R.id.zombie);
-       Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.zombie);
-
-       Matrix matrix = new Matrix();
-       matrix.postRotate(30);
-       Bitmap rotated;
-       rotated = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
-       image.setImageBitmap(rotated);
-
+    image = (ImageView) findViewById(R.id.zombie);
+    bMap = BitmapFactory.decodeResource(getResources(), R.drawable.zombie2);
 
     textViewX = (TextView) findViewById(R.id.textViewX);
     textViewY = (TextView) findViewById(R.id.textViewY);
@@ -174,7 +172,7 @@ public class MainI2cActivity extends Activity
     sensorTask = new SensorTask();
     timer.schedule(sensorTask, 0, 5);
     guiTask = new GuiTask();
-    timer.schedule(guiTask, 0, 20);
+    timer.schedule(guiTask, 0, 200);
 
     for(int i=0;i < 100;i++) {
         readsensor();
@@ -252,6 +250,10 @@ public class MainI2cActivity extends Activity
                     textViewY.setText("Y: " + String.format("%3.2f", y_angle) + DEGREE_SYMBOL);
                     textViewZ.setText("Z: " + String.format("%3.2f", z_angle) + DEGREE_SYMBOL);
 
+                    matrix = new Matrix();
+                    matrix.postRotate((float)x_angle);
+                    rotated = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+                    image.setImageBitmap(rotated);
                 }
             });
         }
