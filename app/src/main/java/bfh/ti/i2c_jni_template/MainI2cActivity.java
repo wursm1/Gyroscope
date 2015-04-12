@@ -24,6 +24,10 @@ import android.view.Menu;
 import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
+import android.graphics.Bitmap;
+import android.widget.ImageView;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 
 public class MainI2cActivity extends Activity
 {
@@ -148,8 +152,19 @@ public class MainI2cActivity extends Activity
   @Override
   protected void onCreate(Bundle savedInstanceState)
    {
-	super.onCreate(savedInstanceState);
-	setContentView(R.layout.activity_main_i2c);
+//import image
+       super.onCreate(savedInstanceState);
+       setContentView(R.layout.activity_main_i2c
+       );
+           ImageView image = (ImageView) findViewById(R.id.zombie);
+       Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.zombie);
+
+       Matrix matrix = new Matrix();
+       matrix.postRotate(30);
+       Bitmap rotated;
+       rotated = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+       image.setImageBitmap(rotated);
+
 
     textViewX = (TextView) findViewById(R.id.textViewX);
     textViewY = (TextView) findViewById(R.id.textViewY);
