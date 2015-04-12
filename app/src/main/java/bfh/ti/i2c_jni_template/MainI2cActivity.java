@@ -24,6 +24,11 @@ import android.view.Menu;
 import android.widget.TextView;
 import java.util.Timer;
 import java.util.TimerTask;
+import android.graphics.Bitmap;
+import android.widget.ImageView;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+
 
 public class MainI2cActivity extends Activity
 {
@@ -88,13 +93,24 @@ public class MainI2cActivity extends Activity
   TextView textViewZ;
 
   /* Temperature Degrees Celsius text symbol */
-  private static final String DEGREE_SYMBOL = "\u2103";
+  private static final String DEGREE_SYMBOL = "\u00B0";
 
   @Override
   protected void onCreate(Bundle savedInstanceState)
    {
-	super.onCreate(savedInstanceState);
-	setContentView(R.layout.activity_main_i2c);
+//import image
+       super.onCreate(savedInstanceState);
+       setContentView(R.layout.activity_main_i2c
+       );
+           ImageView image = (ImageView) findViewById(R.id.zombie);
+       Bitmap bMap = BitmapFactory.decodeResource(getResources(), R.drawable.zombie);
+
+       Matrix matrix = new Matrix();
+       matrix.postRotate(30);
+       Bitmap rotated;
+       rotated = Bitmap.createBitmap(bMap, 0, 0, bMap.getWidth(), bMap.getHeight(), matrix, true);
+       image.setImageBitmap(rotated);
+
 
     textViewX = (TextView) findViewById(R.id.textViewX);
     textViewY = (TextView) findViewById(R.id.textViewY);
@@ -190,9 +206,10 @@ public class MainI2cActivity extends Activity
                     //TempC = 1.0 * Temperature * 0.0625;
 
     /* Display actual temperature */
-                    textViewX.setText("X: " + String.format("%3.2f", x_angle) + DEGREE_SYMBOL + "/s");
-                    textViewY.setText("Y: " + String.format("%3.2f", y_data) + DEGREE_SYMBOL + "/s");
-                    textViewZ.setText("Z: " + String.format("%3.2f", z_data) + DEGREE_SYMBOL + "/s");
+                    textViewX.setText("X: " + String.format("%3.2f", x_angle) + DEGREE_SYMBOL);
+                    textViewY.setText("Y: " + String.format("%3.2f", y_data) + DEGREE_SYMBOL);
+                    textViewZ.setText("Z: " + String.format("%3.2f", z_data) + DEGREE_SYMBOL);
+
                      	/* Close the i2c file */
                     i2c.close(fileHande);
                 }
