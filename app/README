@@ -1,0 +1,8 @@
+I2C Gyroskop demo Programm
+==========================
+
+Das Programm liest die Daten eines L3GD20 Drehratensensors ein und stellt diese auf dem Display dar.
+Dazu werden die eingelesenen Daten integriert und als Zahlenwert und als Drehung eines Bildes dargestellt.
+
+Die Taste T1 startet die Kalibrierung des Sensers.
+Das leuchten der Leds zeigt an das der Sensoren kalibriert ist.

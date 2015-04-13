@@ -43,12 +43,12 @@
         android:layout_alignStart="@+id/textViewX" />
 
     <ImageView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:id="@+id/zombie"
-        android:layout_alignParentTop="true"
-        android:layout_toEndOf="@+id/textViewZ"
-        android:layout_marginStart="100dp"
-        android:src="@drawable/zombie" />
+        android:src="@drawable/zombie"
+        android:layout_above="@+id/textViewZ"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="48dp" />
 
 </RelativeLayout>
