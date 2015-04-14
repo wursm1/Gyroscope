@@ -296,6 +296,10 @@ public class MainI2cActivity extends Activity
                     {
                         calibrate = true;
                     }
+                    if(gpio.read_value(BUTTON_T4).equals(PRESSED))
+                    {
+                        onStop();
+                    }
                 }
             });
         }
