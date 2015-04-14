@@ -49,6 +49,6 @@
         android:layout_alignParentTop="true"
         android:layout_toEndOf="@+id/textViewZ"
         android:layout_marginStart="100dp"
-        android:src="@drawable/zombie" />
+        android:src="@drawable/zombie3" />
 
 </RelativeLayout>

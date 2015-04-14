@@ -162,7 +162,7 @@ public class MainI2cActivity extends Activity
        setContentView(R.layout.activity_main_i2c
        );
     image = (ImageView) findViewById(R.id.zombie);
-    bMap = BitmapFactory.decodeResource(getResources(), R.drawable.zombie2);
+    bMap = BitmapFactory.decodeResource(getResources(), R.drawable.zombie3);
 
     textViewX = (TextView) findViewById(R.id.textViewX);
     textViewY = (TextView) findViewById(R.id.textViewY);
